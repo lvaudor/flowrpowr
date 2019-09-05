@@ -1,0 +1,29 @@
+---
+title: "flowrpowr: packages and functions as skewed mandalas"
+author: "L. Vaudor"
+date: "6/09/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+set.seed(33)
+```
+
+```{r}
+devtools::install_github("lvaudor/flowrpowr")
+library(flowrpowr)
+```
+
+The convention for naming functions and functions' arguments of packages in the tidyverse is such that these function names and arguments names help understand their purpose and architecture.
+
+The `flowrpowr` package exploits that characteristic to produce graphs which intend to facilitate the exploration and understanding of a package's content.
+
+Let's explore, for instance, the `stringr` package:
+
+```{r, fig.width=6, fig.height=6}
+flowr_package("stringr")
+```
+
+This graph lets us understand that all functions in this package will start with prefix "str_" and then lists all possible combinations (all functions of type `str_*()`, for instance `str_c()` and `str_*_*()` -for instance `str_replace_all()` )
+
