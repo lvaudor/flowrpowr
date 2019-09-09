@@ -13,9 +13,7 @@
 flowr_function=function(functionnames,element="", layout="kk"){
   f=function(functionname){
     tibble(root=functionname,
-           elems=formals(functionname) %>% names())# %>%
-     # mutate(elems=map2_chr(.$elems,.$root,protect_element)) %>%
-      #mutate(functionname=map2_chr(.$root,.$root,protect_element))
+           elems=formals(functionname) %>% names())
     }
   list_elems= map_df(functionnames,f)%>%
     filter(str_detect(elems,element)) %>%

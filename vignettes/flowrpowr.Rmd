@@ -11,7 +11,7 @@ set.seed(33)
 ```
 
 ```{r}
-devtools::install_github("lvaudor/flowrpowr")
+#devtools::install_github("lvaudor/flowrpowr")
 library(flowrpowr)
 ```
 
@@ -35,11 +35,6 @@ In the case of `stringr` the common root `str_`for all functions makes a tree-li
 ```{r, fig.width=6, fig.height=6}
 flowr_package("stringr",layout="dendrogram")
 ```
-A few distinct roots might go well with a Sugiyama layout:
-
-```{r, fig.width=6, fig.height=6}
-flowr_package("forcats",layout="sugiyama")
-```
 
 Some packages gather many functions, which makes it preferable to display only some functions in the graph. For instance, the `ggraph` package is quite big to be displayed in a single graph:
 
@@ -57,7 +52,7 @@ flowr_package("ggraph", "edge")
 
 # Functions' arguments
 
-It is also possible to explore the arguments of one or several functions. 
+It is also possible to explore the arguments of one or several functions. A few distinct roots might go well with a Sugiyama layout:
 
 ```{r, fig.width=6, fig.height=6}
 flowr_function(c("geom_violin","geom_point","geom_boxplot"), layout="sugiyama")
