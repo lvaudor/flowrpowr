@@ -10,11 +10,15 @@
 #'               element="edge")
 
 
-flowr_function=function(functionname,element=""){
-  list_elems=tibble(elems=formals(functionname) %>% names()) %>%
-    mutate(elems=str_c(functionname,"()_",elems)) %>%
+flowr_function=function(functionnames,element="", layout="kk"){
+  f=function(functionname){
+    tibble(root=functionname,
+           elems=formals(functionname) %>% names())# %>%
+     # mutate(elems=map2_chr(.$elems,.$root,protect_element)) %>%
+      #mutate(functionname=map2_chr(.$root,.$root,protect_element))
+    }
+  list_elems= map_df(functionnames,f)%>%
     filter(str_detect(elems,element)) %>%
-    mutate(elems=map_chr(elems,protect_element,element)) %>%
-    mutate(elems=map_chr(elems,protect_element,functionname))
-  flowr(list_elems)
+    mutate(elems=map_chr(elems,protect_element,element))
+  flowr(list_elems, layout=layout)
 }

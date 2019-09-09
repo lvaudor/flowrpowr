@@ -15,9 +15,11 @@ devtools::install_github("lvaudor/flowrpowr")
 library(flowrpowr)
 ```
 
-The convention for naming functions and functions' arguments of packages in the tidyverse is such that these function names and arguments names help understand their purpose and architecture.
+The **convention for naming functions and functions' arguments** of packages in the tidyverse is such that these functions and arguments' names help understand their **purpose and construction**.
 
-The `flowrpowr` package exploits that characteristic to produce graphs which intend to facilitate the exploration and understanding of a package's content.
+The `flowrpowr` package exploits that characteristic to produce **graphs which intend to facilitate the exploration and understanding of a package's content and of functions' arguments**.
+
+## Package's functions
 
 Let's explore, for instance, the `stringr` package:
 
@@ -25,5 +27,38 @@ Let's explore, for instance, the `stringr` package:
 flowr_package("stringr")
 ```
 
-This graph lets us understand that all functions in this package will start with prefix "str_" and then lists all possible combinations (all functions of type `str_*()`, for instance `str_c()` and `str_*_*()` -for instance `str_replace_all()` )
+This graph lets us understand that all functions in this package will start with prefix "str_" and then lists all possible combinations (all functions of type `str_*()`, for instance `str_c()` and `str_*_*()` -for instance `str_replace_all()`-).
 
+In the case of `stringr` the common root `str_`for all functions makes a tree-like layout easily readable:
+
+
+```{r, fig.width=6, fig.height=6}
+flowr_package("stringr",layout="dendrogram")
+```
+A few distinct roots might go well with a Sugiyama layout:
+
+```{r, fig.width=6, fig.height=6}
+flowr_package("forcats",layout="sugiyama")
+```
+
+Some packages gather many functions, which makes it preferable to display only some functions in the graph. For instance, the `ggraph` package is quite big to be displayed in a single graph:
+
+```{r, fig.width=6, fig.height=6}
+flowr_package("ggraph")
+```
+
+So it might be useful to display only the part of the graph making use of an element of interest. For instance, if I'm looking, specifically, for some function regarding the drawing of edges:
+
+
+```{r, fig.width=6, fig.height=6}
+flowr_package("ggraph", "edge")
+```
+
+
+# Functions' arguments
+
+It is also possible to explore the arguments of one or several functions. 
+
+```{r, fig.width=6, fig.height=6}
+flowr_function(c("geom_violin","geom_point","geom_boxplot"), layout="sugiyama")
+```

@@ -8,16 +8,18 @@
 #' library(flowrpowr)
 #' flowr_package("tidygraph")
 #' flowr_package(packagename="tidygraph",
-#'               element="node")
+#'               element="node", layout="sugiyama")
 #' flowr_package(packagename="tidygraph",
 #'               element="node_rank")
-flowr_package=function(packagename,element=NA){
-  list_elems=tibble(elems=ls(paste0("package:",packagename)))
+flowr_package=function(packagename,element=NA, layout="kk"){
+  list_elems=tibble(
+    root=packagename,
+    elems=ls(paste0("package:",packagename)))
   if(!is.na(element)){
     list_elems=list_elems %>%
       filter(str_detect(elems,element)) %>%
       mutate(elems=map_chr(elems,protect_element,element))
   }
-  flowr(list_elems)
+  flowr(list_elems, layout=layout)
 }
 
