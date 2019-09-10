@@ -13,6 +13,7 @@
 #'               element="node_rank")
 flowr_package=function(packagename,element=NA, layout="kk"){
   list_elems=tibble(
+    pack_or_fun="package",
     root=packagename,
     elems=ls(paste0("package:",packagename)))
   if(!is.na(element)){

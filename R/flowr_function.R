@@ -6,17 +6,21 @@
 #' @examples
 #' library(flowrpowr)
 #' flowr_function("geom_edge_link")
-#' flowr_function(functionname="geom_edge_link",
-#'               element="edge")
+#' flowr_function(functionnames="geom_edge_link",
+#'                element="label")
 
 
-flowr_function=function(functionnames,element="", layout="kk"){
+flowr_function=function(functionnames,element=NA, layout="kk"){
   f=function(functionname){
-    tibble(root=functionname,
+    tibble(pack_or_fun="function",
+           root=functionname,
            elems=formals(functionname) %>% names())
     }
-  list_elems= map_df(functionnames,f)%>%
-    filter(str_detect(elems,element)) %>%
-    mutate(elems=map_chr(elems,protect_element,element))
+  list_elems= map_df(functionnames,f)
+  if(!is.na(element)){
+    list_elems=list_elems %>%
+      filter(str_detect(elems,element)) %>%
+      mutate(elems=map_chr(elems,protect_element,element))
+  }
   flowr(list_elems, layout=layout)
 }
