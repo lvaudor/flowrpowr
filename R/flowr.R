@@ -1,6 +1,6 @@
 #' Returns a graph
 #' @param list_elems
-#' @param layout either "kk" (for a flower-like representation) or "sugiyama" (for a tree-like representation)
+#' @param layout the type of layout: either "kk" (for a flower-like representation, the default) or "sugiyama" (for a tree-like representation)
 #' @return a graph
 #' @examples
 #' library(flowrpowr)
@@ -14,7 +14,8 @@
 #'           "hop_boum_pouet_toc")))
 
 
-flowr=function(list_elems, layout="kk"){
+flowr=function(list_elems,
+               layout="kk"){
   f=function(x){
     y=NULL
     for (i in 2:length(x)){

@@ -2,30 +2,28 @@
 % Please edit documentation in R/flowr_package.R
 \name{flowr_package}
 \alias{flowr_package}
-\title{Returns tibble with frequencies of cat (lemma or word for instance) in data}
+\title{Returns a graph showing all the arguments of a function or the arguments of a function with a given element as part of their name}
 \usage{
-flowr_package(packagename, element = "")
+flowr_package(packagename, element = NA, layout = "kk")
 }
 \arguments{
-\item{data}{a tibble}
+\item{element}{if provided, part of the name of the argument of interest}
 
-\item{cat}{words or lemmas, for instance}
+\item{layout}{the type of layout: either "kk" (for a flower-like representation, the default) or "sugiyama" (for a tree-like representation)}
 
-\item{criterion}{should the output be filtered by top specificities by category ('top_n') or according to a minimum value of specificity ("spec_min").}
-
-\item{top_n}{in case criterion=='top_n', how many items by category should be kept (defaults to 50)}
-
-\item{spec_min}{in case criterion=='min_spec', which is the minimum specificity for an item to be kept (defaults to 2)}
+\item{functionname}{the name of an installed and loaded package}
 }
 \value{
-a tibble of cat frequencies
+a graph
 }
 \description{
-Returns tibble with frequencies of cat (lemma or word for instance) in data
+Returns a graph showing all the arguments of a function or the arguments of a function with a given element as part of their name
 }
 \examples{
 library(flowrpowr)
 flowr_package("tidygraph")
 flowr_package(packagename="tidygraph",
-              element="edge")
+              element="node", layout="sugiyama")
+flowr_package(packagename="tidygraph",
+              element="node_rank")
 }

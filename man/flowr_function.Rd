@@ -2,30 +2,20 @@
 % Please edit documentation in R/flowr_function.R
 \name{flowr_function}
 \alias{flowr_function}
-\title{Returns tibble with frequencies of cat (lemma or word for instance) in data}
+\title{Returns a graph showing all the arguments of a function or the arguments of a function with a given element as part of their name}
 \usage{
-flowr_function(functionname, element = "")
+flowr_function(functionnames, element = NA, layout = "kk")
 }
 \arguments{
-\item{data}{a tibble}
+\item{element}{if provided, part of the name of the argument of interest}
 
-\item{cat}{words or lemmas, for instance}
+\item{layout}{the type of layout: either "kk" (for a flower-like representation, the default) or "sugiyama" (for a tree-like representation)}
 
-\item{criterion}{should the output be filtered by top specificities by category ('top_n') or according to a minimum value of specificity ("spec_min").}
-
-\item{top_n}{in case criterion=='top_n', how many items by category should be kept (defaults to 50)}
-
-\item{spec_min}{in case criterion=='min_spec', which is the minimum specificity for an item to be kept (defaults to 2)}
+\item{functionname}{the name of a function in an installed and loaded package}
 }
 \value{
-a tibble of cat frequencies
+a graph
 }
 \description{
-Returns tibble with frequencies of cat (lemma or word for instance) in data
-}
-\examples{
-library(flowrpowr)
-flowr_function("geom_edge_link")
-flowr_function(functionname="geom_edge_link",
-              element="edge")
+Returns a graph showing all the arguments of a function or the arguments of a function with a given element as part of their name
 }
