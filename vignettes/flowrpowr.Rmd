@@ -25,7 +25,7 @@ The `flowrpowr` package exploits that characteristic to produce **graphs which i
 
 Let's explore, for instance, the `stringr` package:
 
-```{r, fig.width=6, fig.height=6}
+```{r, fig.width=8, fig.height=6}
 flowr_package("stringr")
 ```
 
@@ -34,29 +34,31 @@ This graph lets us understand that all functions in this package will start with
 In the case of `stringr` the common root `str_`for all functions makes a tree-like layout easily readable:
 
 
-```{r, fig.width=6, fig.height=6}
+```{r, fig.width=8, fig.height=6}
 flowr_package("stringr", layout="sugiyama")
 ```
 
 Some packages gather many functions, which makes it preferable to display only some functions in the graph. For instance, the `ggraph` package is quite big to be displayed in a single graph:
 
-```{r, fig.width=6, fig.height=6}
+```{r, fig.width=8, fig.height=6}
 flowr_package("ggraph")
 ```
 
 So it might be useful to display only the part of the graph making use of an element of interest. For instance, if I'm looking, specifically, for some function regarding the drawing of edges:
 
 
-```{r, fig.width=6, fig.height=6}
+```{r, fig.width=8, fig.height=6}
 flowr_package("ggraph", "edge")
 ```
 
 
 # Functions' arguments
 
-It is also possible to explore the arguments of one or several functions. A few distinct roots might go well with a Sugiyama layout:
+It is also possible to explore the arguments of one or several functions. Examining several functions at once help understand the arguments they have in common and the ones that are peculiar to each.
 
-```{r, fig.width=6, fig.height=6}
-flowr_function(c("geom_violin","geom_point","geom_boxplot","geom_node_point"),
+A few distinct roots might go well with a Sugiyama layout:
+
+```{r, fig.width=8, fig.height=6}
+flowr_function(c("geom_violin","geom_point","geom_boxplot"),
                layout="sugiyama")
 ```

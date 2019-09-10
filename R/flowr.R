@@ -1,6 +1,6 @@
 #' Returns a graph
 #' @param list_elems
-#' @param layout
+#' @param layout either "kk" (for a flower-like representation) or "sugiyama" (for a tree-like representation)
 #' @return a graph
 #' @examples
 #' library(flowrpowr)
@@ -68,7 +68,7 @@ flowr=function(list_elems, layout="kk"){
                        from=tib$root,
                        to=tib$from) %>%
                   unique())
-  #list_elems_protected=list_elems_protected %>% filter(!(elems %in% tib$elems))
+  list_elems_protected=list_elems_protected %>% filter(!(elems %in% tib$elems))
   tib=bind_rows(tib,
                 tibble(pack_or_fun=list_elems_protected $pack_or_fun,
                        root=list_elems_protected $root,
@@ -102,7 +102,7 @@ flowr=function(list_elems, layout="kk"){
     scale_edge_colour_manual(breaks=c("::",".","_","(...)"),
                              values=c("goldenrod","darkolivegreen4","darkolivegreen1","goldenrod2"))+
     scale_fill_manual(values=c("mediumpurple2","indianred1","gold1"))
-  if(layout %in% c("sugiyama","dendrogram","treemap")){
+  if(layout=="sugiyama"){
     g=g +
       scale_y_reverse(expand=expand_scale(mult=0.1))+
       coord_flip()
