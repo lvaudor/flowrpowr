@@ -34,7 +34,7 @@ This graph lets us understand that many functions in this package will start wit
 In the case of `stringr` the common root `str_`for many functions makes a tree-like layout easily readable:
 
 
-```{r flowr_stringr_sugiyama fig.width=8, fig.height=6}
+```{r flowr_stringr_sugiyama, fig.width=8, fig.height=6}
 flowr_package("stringr", layout="sugiyama")
 ```
 
