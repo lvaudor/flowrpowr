@@ -25,40 +25,40 @@ The `flowrpowr` package exploits that characteristic to produce **graphs which i
 
 Let's explore, for instance, the `stringr` package:
 
-```{r, fig.width=8, fig.height=6}
+```{r flowr_stringr, fig.width=8, fig.height=6}
 flowr_package("stringr")
 ```
 
-This graph lets us understand that all functions in this package will start with prefix "str_" and then lists all possible combinations (all functions of type `str_*()`, for instance `str_c()` and `str_*_*()` -for instance `str_replace_all()`-).
+This graph lets us understand that many functions in this package will start with prefix "str_" and then lists all possible combinations (all functions of type `str_*()`, for instance `str_c()` and `str_*_*()` -for instance `str_replace_all()`-).
 
-In the case of `stringr` the common root `str_`for all functions makes a tree-like layout easily readable:
+In the case of `stringr` the common root `str_`for many functions makes a tree-like layout easily readable:
 
 
-```{r, fig.width=8, fig.height=6}
+```{r flowr_stringr_sugiyama fig.width=8, fig.height=6}
 flowr_package("stringr", layout="sugiyama")
 ```
 
 Some packages gather many functions, which makes it preferable to display only some functions in the graph. For instance, the `ggraph` package is quite big to be displayed in a single graph:
 
-```{r, fig.width=8, fig.height=6}
+```{r flowr_ggraph, fig.width=8, fig.height=6}
 flowr_package("ggraph")
 ```
 
-So it might be useful to display only the part of the graph making use of an element of interest. For instance, if I'm looking, specifically, for some function regarding the drawing of edges:
+So it might be useful to display **only part of the graph** making use of an **element of interest**. For instance, if I'm looking, specifically, for some function regarding the edges:
 
 
-```{r, fig.width=8, fig.height=6}
+```{r flowr_ggraph_edge,fig.width=8, fig.height=6}
 flowr_package("ggraph", "edge")
 ```
 
 
 # Functions' arguments
 
-It is also possible to explore the arguments of one or several functions. Examining several functions at once help understand the arguments they have in common and the ones that are peculiar to each.
+It is also possible to explore the **arguments to one or several functions**. Examining several functions at once help understand the arguments they have **in common** and the ones that are **specific** to each.
 
-A few distinct roots might go well with a Sugiyama layout:
+A few functions mean a few distinct roots, which might be well suited to a Sugiyama layout:
 
-```{r, fig.width=8, fig.height=6}
+```{r flowr_functions, fig.width=8, fig.height=6}
 flowr_function(c("geom_violin","geom_point","geom_boxplot"),
                layout="sugiyama")
 ```
