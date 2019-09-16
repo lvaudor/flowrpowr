@@ -58,6 +58,7 @@ flowr=function(list_elems,
     mutate(data=stringr::str_split(data,"(_)|((?<=\\w)\\.(?=\\w))")) %>%
     mutate(data=map(data,f)) %>%
     unnest(cols=data)%>%
+    ungroup() %>%
     na.omit() %>%
     mutate(pattern=map2_chr(.$from,.$to,~str_c("(?<=",.x,")[_|\\.](?=",.y,")"))) %>%
     mutate(sep=map2_chr(.$elems,.$pattern,~str_extract(.x,.y)))
