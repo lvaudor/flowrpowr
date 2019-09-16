@@ -31,7 +31,7 @@ flowr=function(list_elems,
     mutate(data=elems) %>%
     mutate(data=stringr::str_split(data,"(_)|((?<=\\w)\\.(?=\\w))")) %>%
     mutate(data=map(data,f)) %>%
-    unnest()  %>%
+    unnest(cols=data)  %>%
     mutate(from_is_function=root==from)%>%
     filter(!from_is_function) %>%
     group_by(root,from) %>%
@@ -57,7 +57,7 @@ flowr=function(list_elems,
     mutate(data=elems) %>%
     mutate(data=stringr::str_split(data,"(_)|((?<=\\w)\\.(?=\\w))")) %>%
     mutate(data=map(data,f)) %>%
-    unnest()%>%
+    unnest(cols=data)%>%
     na.omit() %>%
     mutate(pattern=map2_chr(.$from,.$to,~str_c("(?<=",.x,")[_|\\.](?=",.y,")"))) %>%
     mutate(sep=map2_chr(.$elems,.$pattern,~str_extract(.x,.y)))
