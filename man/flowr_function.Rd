@@ -19,3 +19,11 @@ a graph
 \description{
 Returns a graph showing all the arguments of a function or the arguments of a function with a given element as part of their name
 }
+\examples{
+library(flowrpowr)
+flowr_function("geom_edge_link")
+flowr_function("geom_edge_link",
+               element="label")
+flowr_function(c("geom_violin","geom_point","geom_boxplot"))
+flowr_function(c("geom_violin","geom_point","geom_boxplot"),layout="sugiyama")
+}

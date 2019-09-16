@@ -15,14 +15,14 @@
 flowr_package=function(packagename,
                        element=NA,
                        layout="kk"){
-  list_elems=tibble(
+  list_elems=tibble::tibble(
     pack_or_fun="package",
     root=packagename,
     elems=ls(paste0("package:",packagename)))
   if(!is.na(element)){
     list_elems=list_elems %>%
-      filter(str_detect(elems,element)) %>%
-      mutate(elems=map_chr(elems,protect_element,element))
+      dplyr::filter(stringr::str_detect(elems,element)) %>%
+      dplyr::mutate(elems=purrr::map_chr(elems,protect_element,element))
   }
   flowr(list_elems, layout=layout)
 }

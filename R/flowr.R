@@ -16,101 +16,103 @@
 
 flowr=function(list_elems,
                layout="kk"){
-  f=function(x){
+  split_elems=function(x){
     y=NULL
     for (i in 2:length(x)){
       y=rbind(y,
-              tibble(from=x[i-1],to=x[i]))
+              tibble::tibble(from=x[i-1],to=x[i]))
     }
     return(y)
   }
 
   elems_to_protect=list_elems %>%
-    group_by(root,elems) %>%
-    nest() %>%
-    mutate(data=elems) %>%
-    mutate(data=stringr::str_split(data,"(_)|((?<=\\w)\\.(?=\\w))")) %>%
-    mutate(data=map(data,f)) %>%
-    unnest(cols=data)  %>%
-    mutate(from_is_function=root==from)%>%
-    filter(!from_is_function) %>%
-    group_by(root,from) %>%
-    mutate(n=n())%>%
-    filter(n==1) %>%
-    ungroup() %>%
-    mutate(pattern=map2_chr(.$from,.$to,~str_c(.x,"(_|\\.)",.y))) %>%
-    mutate(protect_this=map2_chr(.$elems,.$pattern,str_extract))%>%
+    dplyr::group_by(root,elems) %>%
+    tidyr::nest() %>%
+    dplyr::mutate(data=elems) %>%
+    dplyr::mutate(data=stringr::str_split(data,"(_)|((?<=\\w)\\.(?=\\w))")) %>%
+    dplyr::mutate(data=map(data,split_elems)) %>%
+    tidyr::unnest(cols=data)  %>%
+    dplyr::mutate(from_is_function=root==from)%>%
+    dplyr::filter(!from_is_function) %>%
+    dplyr::group_by(root,from) %>%
+    dplyr::mutate(n=n())%>%
+    dplyr::filter(n==1) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(pattern=map2_chr(.$from,.$to,~str_c(.x,"(_|\\.)",.y))) %>%
+    dplyr::mutate(protect_this=map2_chr(.$elems,.$pattern,str_extract))%>%
     na.omit() %>%
-    pull(protect_this) %>%
+    dplyr::pull(protect_this) %>%
     unique()
 
   list_elems_protected=list_elems
   if(length(elems_to_protect)>0){
   for (i in 1:length(elems_to_protect)){
     list_elems_protected=list_elems_protected %>%
-      mutate(elems=map_chr(elems,protect_element,elems_to_protect[i]))
+      dplyr::mutate(elems=purrr::map_chr(elems,protect_element,elems_to_protect[i]))
   }
   }
   tib=list_elems_protected %>%
-    group_by(pack_or_fun,root,elems) %>%
-    nest() %>%
-    mutate(data=elems) %>%
-    mutate(data=stringr::str_split(data,"(_)|((?<=\\w)\\.(?=\\w))")) %>%
-    mutate(data=map(data,f)) %>%
-    unnest(cols=data)%>%
-    ungroup() %>%
+    dplyr::group_by(pack_or_fun,root,elems) %>%
+    tidyr::nest() %>%
+    dplyr::mutate(data=elems) %>%
+    dplyr::mutate(data=stringr::str_split(data,"(_)|((?<=\\w)\\.(?=\\w))")) %>%
+    dplyr::mutate(data=map(data,split_elems)) %>%
+    tidyr::unnest(cols=data)%>%
+    dplyr::ungroup() %>%
     na.omit() %>%
-    mutate(pattern=map2_chr(.$from,.$to,~str_c("(?<=",.x,")[_|\\.](?=",.y,")"))) %>%
-    mutate(sep=map2_chr(.$elems,.$pattern,~str_extract(.x,.y)))
+    dplyr::mutate(pattern=purrr::map2_chr(.$from,.$to,~str_c("(?<=",.x,")[_|\\.](?=",.y,")"))) %>%
+    dplyr::mutate(sep=purrr::map2_chr(.$elems,.$pattern,~str_extract(.x,.y)))
   # add root
   tib=bind_rows(tib,
-                tibble(pack_or_fun=tib$pack_or_fun,
+                tibble::tibble(pack_or_fun=tib$pack_or_fun,
                        root=tib$root,
                        elems=tib$elems,
                        from=tib$root,
                        to=tib$from) %>%
                   unique())
-  list_elems_protected=list_elems_protected %>% filter(!(elems %in% tib$elems))
+  list_elems_protected=list_elems_protected %>%
+    dplyr::filter(!(elems %in% tib$elems))
   tib=bind_rows(tib,
-                tibble(pack_or_fun=list_elems_protected $pack_or_fun,
+                tibble::tibble(pack_or_fun=list_elems_protected $pack_or_fun,
                        root=list_elems_protected $root,
                        elems=list_elems_protected $elems,
                        from=list_elems_protected $root,
                        to=list_elems_protected $elems))%>%
-    mutate(elems=str_replace_all(elems,"xxx","_"))%>%
-    mutate(from=str_replace_all(from,"xxx","_")) %>%
-    mutate(to=str_replace_all(to,"xxx","_")) %>%
-    mutate(elems=str_replace_all(elems,"yyy","."))%>%
-    mutate(from=str_replace_all(from,"yyy",".")) %>%
-    mutate(to=str_replace_all(to,"yyy",".")) %>%
-    mutate(sep=case_when((is.na(sep))&(pack_or_fun=="function")~"(...)",
+    mutate(elems=stringr::str_replace_all(elems,"xxx","_"))%>%
+    mutate(from=stringr::str_replace_all(from,"xxx","_")) %>%
+    mutate(to=stringr::str_replace_all(to,"xxx","_")) %>%
+    mutate(elems=stringr::str_replace_all(elems,"yyy","."))%>%
+    mutate(from=stringr::str_replace_all(from,"yyy",".")) %>%
+    mutate(to=stringr::str_replace_all(to,"yyy",".")) %>%
+    mutate(sep=dplyr::case_when((is.na(sep))&(pack_or_fun=="function")~"(...)",
                          (is.na(sep))&(pack_or_fun=="package")~"::",
                          !is.na(sep)~sep))
 
-  g=as_tbl_graph(tib) %>%
-    filter(!node_is_isolated()) %>%
-    mutate(is_source=as.numeric(node_is_source())) %>%
-    mutate(is_leaf=as.numeric(node_is_sink())) %>%
-    mutate(nodetype=as.factor(str_c(is_source,is_leaf))) %>%
-    ggraph(layout=layout)+
-    geom_edge_link(aes(edge_colour=sep),
+  g=tidygraph::as_tbl_graph(tib) %>%
+    tidygraph::filter(!node_is_isolated()) %>%
+    tidygraph::mutate(is_source=as.numeric(node_is_source())) %>%
+    tidygraph::mutate(is_leaf=as.numeric(node_is_sink())) %>%
+    tidygraph::mutate(nodetype=as.factor(str_c(is_source,is_leaf))) %>%
+    ggraph::ggraph(layout=layout)+
+    ggraph::geom_edge_link(aes(edge_colour=sep),
                    arrow=arrow(length=unit(3,"mm")),
                    edge_width=1,alpha=0.5)+
-    geom_node_label(aes(label=name,fill=nodetype),
+    ggraph:: geom_node_label(aes(label=name,fill=nodetype),
                     show.legend=FALSE,label.r=unit(0.5,"lines"),
                     alpha=0.3,
                     label.size=0)+
-    theme_graph()+
-    scale_edge_colour_manual(breaks=c("::",".","_","(...)"),
+    ggraph::theme_graph()+
+    ggraph::scale_edge_colour_manual(breaks=c("::",".","_","(...)"),
                              values=c("goldenrod","darkolivegreen4","darkolivegreen1","goldenrod2"))+
-    scale_fill_manual(values=c("mediumpurple2","indianred1","gold1"))
+    ggplot2::scale_fill_manual(values=c("mediumpurple2","indianred1","gold1"))
   if(layout=="sugiyama"){
     g=g +
-      scale_y_reverse(expand=expand_scale(mult=0.1))+
-      coord_flip()
+      ggplot2::scale_y_reverse(expand=expand_scale(mult=0.1))+
+      ggplot2::coord_flip()
   }
   if(layout=="kk"){
-    g=g+scale_x_continuous(expand=expand_scale(mult=0.1))
+    g=g+
+      ggplot2::scale_x_continuous(expand=expand_scale(mult=0.1))
   }
 
   g

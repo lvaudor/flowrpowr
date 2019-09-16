@@ -10,22 +10,22 @@
 #' flowr_function("geom_edge_link",
 #'                element="label")
 #' flowr_function(c("geom_violin","geom_point","geom_boxplot"))
-#' flowr_function(c("geom_violin","geom_point","geom_boxplot"),layout="sugiyama)
+#' flowr_function(c("geom_violin","geom_point","geom_boxplot"),layout="sugiyama")
 
 
 flowr_function=function(functionnames,
                         element=NA,
                         layout="kk"){
   f=function(functionname){
-    tibble(pack_or_fun="function",
+    tibble::tibble(pack_or_fun="function",
            root=functionname,
            elems=formals(functionname) %>% names())
     }
-  list_elems= map_df(functionnames,f)
+  list_elems= purrr::map_df(functionnames,f)
   if(!is.na(element)){
     list_elems=list_elems %>%
-      filter(str_detect(elems,element)) %>%
-      mutate(elems=map_chr(elems,protect_element,element))
+      dplyr::filter(stringr::str_detect(elems,element)) %>%
+      dplyr::mutate(elems=purrr::map_chr(elems,protect_element,element))
   }
   flowr(list_elems, layout=layout)
 }
