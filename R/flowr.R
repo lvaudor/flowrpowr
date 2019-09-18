@@ -59,7 +59,7 @@ flowr=function(tib_elems,
    if(dim(tib_elems_pb)[1]>0){
      for (i in 1:nrow(tib_elems_pb)){
        tib_elems=tib_elems %>%
-         dplyr::filter(pair!=tib_elems_pb$pair[i]) %>%
+         dplyr::filter(!(pair==tib_elems_pb$pair[i] & elems==tib_elems_pb$elems[i] & root==tib_elems_pb$root[i])) %>%
          dplyr::mutate(pb_to=(index==tib_elems_pb$index[i]) & (to==tib_elems_pb$from[i])) %>%
          dplyr::mutate(pb_from=(index==tib_elems_pb$index[i]) & (from==tib_elems_pb$to[i])) %>%
          dplyr::mutate(to=dplyr::case_when(pb_to~tib_elems_pb$pair[i],
@@ -79,7 +79,10 @@ flowr=function(tib_elems,
     dplyr::mutate(sep=dplyr::case_when(pack_or_fun=="package"~"::",
                                        pack_or_fun=="function"~"(...)"))
   tib=dplyr::bind_rows(tib_elems,
-                       tib_firstpart)
+                       tib_firstpart) %>%
+    filter(!is.na(to)) %>%
+    select(-data) %>%
+    unique()
 
   g=tidygraph::as_tbl_graph(tib) %>%
     tidygraph::filter(!node_is_isolated()) %>%
