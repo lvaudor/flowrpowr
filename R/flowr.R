@@ -81,7 +81,6 @@ flowr=function(tib_elems,
   tib=dplyr::bind_rows(tib_elems,
                        tib_firstpart) %>%
     dplyr::filter(!is.na(to)) %>%
-    dplyr::select(-data) %>%
     unique()
 
   g=tidygraph::as_tbl_graph(tib) %>%
