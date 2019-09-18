@@ -53,33 +53,33 @@ flowr=function(tib_elems,
     dplyr::ungroup() %>%
     na.omit()
   if(!is.na(element)){
-    tib_elems_pb=bind_rows(tib_elems_pb,
-                           filter(tib_elems,pair==element))
+    tib_elems_pb=dplyr::bind_rows(tib_elems_pb,
+                           dplyr::filter(tib_elems,pair==element))
   }
    if(dim(tib_elems_pb)[1]>0){
      for (i in 1:nrow(tib_elems_pb)){
        tib_elems=tib_elems %>%
-         filter(pair!=tib_elems_pb$pair[i]) %>%
-         mutate(pb_to=(index==tib_elems_pb$index[i]) & (to==tib_elems_pb$from[i])) %>%
-         mutate(pb_from=(index==tib_elems_pb$index[i]) & (from==tib_elems_pb$to[i])) %>%
-         mutate(to= case_when(pb_to~tib_elems_pb$pair[i],
+         dplyr::filter(pair!=tib_elems_pb$pair[i]) %>%
+         dplyr::mutate(pb_to=(index==tib_elems_pb$index[i]) & (to==tib_elems_pb$from[i])) %>%
+         dplyr::mutate(pb_from=(index==tib_elems_pb$index[i]) & (from==tib_elems_pb$to[i])) %>%
+         dplyr::mutate(to=dplyr::case_when(pb_to~tib_elems_pb$pair[i],
                               !pb_to~to)) %>%
-         mutate(from= case_when(pb_from~tib_elems_pb$pair[i],
-                              !pb_from~from)) %>%
-         mutate(pair=case_when(pb_to|pb_from~stringr::str_c(from,sep,to),
-                               !(pb_to|pb_from)~pair)) %>%
-         select(-pb_to,-pb_from)
+         dplyr::mutate(from=dplyr::case_when(pb_from~tib_elems_pb$pair[i],
+                                             !pb_from~from)) %>%
+         dplyr::mutate(pair=dplyr::case_when(pb_to|pb_from~stringr::str_c(from,sep,to),
+                                             !(pb_to|pb_from)~pair)) %>%
+         dplyr::select(-pb_to,-pb_from)
        }
    }
   # add root
   tib_firstpart=tib_elems %>%
-    filter(index_partial==1) %>%
-    mutate(to=from) %>%
-    mutate(from=root) %>%
-    mutate(sep=case_when(pack_or_fun=="package"~"::",
-                         pack_or_fun=="function"~"(...)"))
-  tib=bind_rows(tib_elems,
-                tib_firstpart)
+    dplyr::filter(index_partial==1) %>%
+    dplyr::mutate(to=from) %>%
+    dplyr::mutate(from=root) %>%
+    dplyr::mutate(sep=dplyr::case_when(pack_or_fun=="package"~"::",
+                                       pack_or_fun=="function"~"(...)"))
+  tib=dplyr::bind_rows(tib_elems,
+                       tib_firstpart)
 
   g=tidygraph::as_tbl_graph(tib) %>%
     tidygraph::filter(!node_is_isolated()) %>%
