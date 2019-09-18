@@ -1,92 +1,85 @@
 #' Returns a graph
-#' @param list_elems
+#' @param tib_elems
 #' @param layout the type of layout: either "kk" (for a flower-like representation, the default) or "sugiyama" (for a tree-like representation)
 #' @return a graph
 #' @examples
 #' library(flowrpowr)
-#' flowr(list_elems=tibble(
+#' tib_elems=tibble(
 #'   root="gwek",
 #'   pack_or_fun="package",
 #'   elems=c("pouet_boum.bam",
 #'           "pouet_hop_bam",
 #'           "hop_boum.bam",
 #'           "hop_boum_pouet_tac",
-#'           "hop_boum_pouet_toc")))
+#'           "hop_boum_pouet_tocBim",
+#'           "hop_boum_pouet_tocBimPaf",
+#'           "hop_boum_pouet_tocBoum"))
+#'  flowr(tib_elems)
 
 
-flowr=function(list_elems,
+flowr=function(tib_elems,
+               element=NA,
                layout="kk"){
-  split_elems=function(x){
-    y=NULL
-    for (i in 2:length(x)){
-      y=rbind(y,
-              tibble::tibble(from=x[i-1],to=x[i]))
+  names_to_graph=function(data){
+    graphdata=NULL
+    for (i in 1:length(data$patterns)){
+      graphdata=rbind(graphdata,
+                      tibble::tibble(index_partial=i,
+                                     from=data$parts[i],
+                                     to=data$parts[i+1],
+                                     sep=data$patterns[i],
+                                     pair=stringr::str_c(from,sep,to)))
     }
-    return(y)
+    return(graphdata)
   }
-
-  elems_to_protect=list_elems %>%
-    dplyr::group_by(root,elems) %>%
+  separation_pattern="(_)|((?<=\\w)\\.(?=\\w))|((?<=[:lower:])(?=[:upper:]))"
+  tib_elems=tib_elems %>%
+    dplyr::mutate(index=1:n()) %>%
+    dplyr::group_by(root,pack_or_fun,elems,index) %>%
     tidyr::nest() %>%
     dplyr::mutate(data=elems) %>%
-    dplyr::mutate(data=stringr::str_split(data,"(_)|((?<=\\w)\\.(?=\\w))")) %>%
-    dplyr::mutate(data=map(data,split_elems)) %>%
-    tidyr::unnest(cols=data)  %>%
+    dplyr::mutate(parts=stringr::str_split(data,separation_pattern)) %>%
+    dplyr::mutate(patterns=stringr::str_extract_all(data,separation_pattern)) %>%
+    dplyr::mutate(data=map2(.$parts,.$patterns,~list(parts=.x,patterns=.y))) %>%
+    dplyr::mutate(data=map(data,names_to_graph)) %>%
+    dplyr::select(-parts,-patterns) %>%
+    tidyr::unnest(cols=data)
+  tib_elems_pb=tib_elems %>%
     dplyr::mutate(from_is_function=root==from)%>%
     dplyr::filter(!from_is_function) %>%
     dplyr::group_by(root,from) %>%
     dplyr::mutate(n=n())%>%
     dplyr::filter(n==1) %>%
     dplyr::ungroup() %>%
-    dplyr::mutate(pattern=map2_chr(.$from,.$to,~str_c(.x,"(_|\\.)",.y))) %>%
-    dplyr::mutate(protect_this=map2_chr(.$elems,.$pattern,str_extract))%>%
-    na.omit() %>%
-    dplyr::pull(protect_this) %>%
-    unique()
-
-  list_elems_protected=list_elems
-  if(length(elems_to_protect)>0){
-  for (i in 1:length(elems_to_protect)){
-    list_elems_protected=list_elems_protected %>%
-      dplyr::mutate(elems=purrr::map_chr(elems,protect_element,elems_to_protect[i]))
+    na.omit()
+  if(!is.na(element)){
+    tib_elems_pb=bind_rows(tib_elems_pb,
+                           filter(tib_elems,pair==element))
   }
-  }
-  tib=list_elems_protected %>%
-    dplyr::group_by(pack_or_fun,root,elems) %>%
-    tidyr::nest() %>%
-    dplyr::mutate(data=elems) %>%
-    dplyr::mutate(data=stringr::str_split(data,"(_)|((?<=\\w)\\.(?=\\w))")) %>%
-    dplyr::mutate(data=map(data,split_elems)) %>%
-    tidyr::unnest(cols=data)%>%
-    dplyr::ungroup() %>%
-    na.omit() %>%
-    dplyr::mutate(pattern=purrr::map2_chr(.$from,.$to,~str_c("(?<=",.x,")[_|\\.](?=",.y,")"))) %>%
-    dplyr::mutate(sep=purrr::map2_chr(.$elems,.$pattern,~str_extract(.x,.y)))
+   if(dim(tib_elems_pb)[1]>0){
+     for (i in 1:nrow(tib_elems_pb)){
+       tib_elems=tib_elems %>%
+         filter(pair!=tib_elems_pb$pair[i]) %>%
+         mutate(pb_to=(index==tib_elems_pb$index[i]) & (to==tib_elems_pb$from[i])) %>%
+         mutate(pb_from=(index==tib_elems_pb$index[i]) & (from==tib_elems_pb$to[i])) %>%
+         mutate(to= case_when(pb_to~tib_elems_pb$pair[i],
+                              !pb_to~to)) %>%
+         mutate(from= case_when(pb_from~tib_elems_pb$pair[i],
+                              !pb_from~from)) %>%
+         mutate(pair=case_when(pb_to|pb_from~stringr::str_c(from,sep,to),
+                               !(pb_to|pb_from)~pair)) %>%
+         select(-pb_to,-pb_from)
+       }
+   }
   # add root
-  tib=bind_rows(tib,
-                tibble::tibble(pack_or_fun=tib$pack_or_fun,
-                       root=tib$root,
-                       elems=tib$elems,
-                       from=tib$root,
-                       to=tib$from) %>%
-                  unique())
-  list_elems_protected=list_elems_protected %>%
-    dplyr::filter(!(elems %in% tib$elems))
-  tib=bind_rows(tib,
-                tibble::tibble(pack_or_fun=list_elems_protected $pack_or_fun,
-                       root=list_elems_protected $root,
-                       elems=list_elems_protected $elems,
-                       from=list_elems_protected $root,
-                       to=list_elems_protected $elems))%>%
-    mutate(elems=stringr::str_replace_all(elems,"xxx","_"))%>%
-    mutate(from=stringr::str_replace_all(from,"xxx","_")) %>%
-    mutate(to=stringr::str_replace_all(to,"xxx","_")) %>%
-    mutate(elems=stringr::str_replace_all(elems,"yyy","."))%>%
-    mutate(from=stringr::str_replace_all(from,"yyy",".")) %>%
-    mutate(to=stringr::str_replace_all(to,"yyy",".")) %>%
-    mutate(sep=dplyr::case_when((is.na(sep))&(pack_or_fun=="function")~"(...)",
-                         (is.na(sep))&(pack_or_fun=="package")~"::",
-                         !is.na(sep)~sep))
+  tib_firstpart=tib_elems %>%
+    filter(index_partial==1) %>%
+    mutate(to=from) %>%
+    mutate(from=root) %>%
+    mutate(sep=case_when(pack_or_fun=="package"~"::",
+                         pack_or_fun=="function"~"(...)"))
+  tib=bind_rows(tib_elems,
+                tib_firstpart)
 
   g=tidygraph::as_tbl_graph(tib) %>%
     tidygraph::filter(!node_is_isolated()) %>%

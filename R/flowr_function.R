@@ -21,11 +21,10 @@ flowr_function=function(functionnames,
            root=functionname,
            elems=formals(functionname) %>% names())
     }
-  list_elems= purrr::map_df(functionnames,f)
+  tib_elems= purrr::map_df(functionnames,f)
   if(!is.na(element)){
-    list_elems=list_elems %>%
-      dplyr::filter(stringr::str_detect(elems,element)) %>%
-      dplyr::mutate(elems=purrr::map_chr(elems,protect_element,element))
+    tib_elems=tib_elems %>%
+      dplyr::filter(stringr::str_detect(elems,element))
   }
-  flowr(list_elems, layout=layout)
+  flowr(tib_elems,element=element, layout=layout)
 }
