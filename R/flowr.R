@@ -80,15 +80,15 @@ flowr=function(tib_elems,
                                        pack_or_fun=="function"~"(...)"))
   tib=dplyr::bind_rows(tib_elems,
                        tib_firstpart) %>%
-    filter(!is.na(to)) %>%
-    select(-data) %>%
+    dplyr::filter(!is.na(to)) %>%
+    dplyr::select(-data) %>%
     unique()
 
   g=tidygraph::as_tbl_graph(tib) %>%
-    tidygraph::filter(!node_is_isolated()) %>%
-    tidygraph::mutate(is_source=as.numeric(node_is_source())) %>%
-    tidygraph::mutate(is_leaf=as.numeric(node_is_sink())) %>%
-    tidygraph::mutate(nodetype=as.factor(str_c(is_source,is_leaf))) %>%
+    tidygraph::filter(!tidygraph::node_is_isolated()) %>%
+    tidygraph::mutate(is_source=as.numeric(tidygraph::node_is_source())) %>%
+    tidygraph::mutate(is_leaf=as.numeric(tidygraph::node_is_sink())) %>%
+    tidygraph::mutate(nodetype=as.factor(stringr::str_c(is_source,is_leaf))) %>%
     ggraph::ggraph(layout=layout)+
     ggraph::geom_edge_link(aes(edge_colour=sep),
                    arrow=arrow(length=unit(3,"mm")),
@@ -103,12 +103,12 @@ flowr=function(tib_elems,
     ggplot2::scale_fill_manual(values=c("mediumpurple2","indianred1","gold1"))
   if(layout=="sugiyama"){
     g=g +
-      ggplot2::scale_y_reverse(expand=expand_scale(mult=0.1))+
+      ggplot2::scale_y_reverse(expand=ggplot2::expand_scale(mult=0.1))+
       ggplot2::coord_flip()
   }
   if(layout=="kk"){
     g=g+
-      ggplot2::scale_x_continuous(expand=expand_scale(mult=0.1))
+      ggplot2::scale_x_continuous(expand=ggplot2::expand_scale(mult=0.1))
   }
 
   g
