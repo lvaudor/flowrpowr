@@ -33,16 +33,20 @@ flowr=function(tib_elems,
     return(graphdata)
   }
   separation_pattern="(_)|((?<=\\w)\\.(?=\\w))|((?<=[:lower:])(?=[:upper:]))"
+
+  parts_and_patterns=function(elem){
+    result=list(
+      parts=stringr::str_split(elem,separation_pattern) %>% unlist(),
+      patterns=stringr::str_extract_all(elem,separation_pattern) %>% unlist()
+    )
+    return(result)
+  }
   tib_elems=tib_elems %>%
     dplyr::mutate(index=1:n()) %>%
     dplyr::group_by(root,pack_or_fun,elems,index) %>%
     tidyr::nest() %>%
-    dplyr::mutate(data=elems) %>%
-    dplyr::mutate(parts=stringr::str_split(data,separation_pattern)) %>%
-    dplyr::mutate(patterns=stringr::str_extract_all(data,separation_pattern)) %>%
-    dplyr::mutate(data=map2(.$parts,.$patterns,~list(parts=.x,patterns=.y))) %>%
-    dplyr::mutate(data=map(data,names_to_graph)) %>%
-    dplyr::select(-parts,-patterns) %>%
+    dplyr::mutate(data=purrr::map(elems,parts_and_patterns)) %>%
+    dplyr::mutate(data=purrr::map(data,names_to_graph)) %>%
     tidyr::unnest(cols=data)
   tib_elems_pb=tib_elems %>%
     dplyr::mutate(from_is_function=root==from)%>%
@@ -56,12 +60,16 @@ flowr=function(tib_elems,
     tib_elems_pb=dplyr::bind_rows(tib_elems_pb,
                            dplyr::filter(tib_elems,pair==element))
   }
-   if(dim(tib_elems_pb)[1]>0){
+   if(nrow(tib_elems_pb)>0){
      for (i in 1:nrow(tib_elems_pb)){
        tib_elems=tib_elems %>%
-         dplyr::filter(!(pair==tib_elems_pb$pair[i] & elems==tib_elems_pb$elems[i] & root==tib_elems_pb$root[i])) %>%
-         dplyr::mutate(pb_to=(index==tib_elems_pb$index[i]) & (to==tib_elems_pb$from[i])) %>%
-         dplyr::mutate(pb_from=(index==tib_elems_pb$index[i]) & (from==tib_elems_pb$to[i])) %>%
+         dplyr::filter(!(pair==tib_elems_pb$pair[i] &
+                           elems==tib_elems_pb$elems[i] &
+                           root==tib_elems_pb$root[i])) %>%
+         dplyr::mutate(pb_to=(index==tib_elems_pb$index[i]) &
+                         (to==tib_elems_pb$from[i])) %>%
+         dplyr::mutate(pb_from=(index==tib_elems_pb$index[i]) &
+                         (from==tib_elems_pb$to[i])) %>%
          dplyr::mutate(to=dplyr::case_when(pb_to~tib_elems_pb$pair[i],
                               !pb_to~to)) %>%
          dplyr::mutate(from=dplyr::case_when(pb_from~tib_elems_pb$pair[i],
