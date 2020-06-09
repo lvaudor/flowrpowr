@@ -4,7 +4,6 @@ regather_false_pairs=function(tib){
     correct_these=which(tib$to_be_corrected)
     while(length(correct_these)>0){
           ind=max(which(tib$to_be_corrected))
-          print(ind)
           tib[ind,]=tib[ind,] %>%
             dplyr::mutate(from=pair,
                    to=pair,
@@ -29,8 +28,6 @@ regather_false_pairs=function(tib){
                   dplyr::slice(-ind)
           }else{tib[ind,]=mutate(tib[ind,],to=NA)}
           tib=assess_pairs(tib)
-          print(tail(tib))
-          print(dim(tib))
           correct_these=which(tib$to_be_corrected)
     }
     tib=tib %>%
