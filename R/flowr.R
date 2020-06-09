@@ -21,7 +21,7 @@ flowr=function(tib_elems,
                element=NA,
                layout="kk"){
   tib_elems_tmp=tib_elems %>%
-    dplyr::mutate(index=1:n()) %>%
+    dplyr::mutate(index=1:dplyr::n()) %>%
     dplyr::group_by(root,pack_or_fun,elems,index) %>%
     tidyr::nest() %>%
     dplyr::mutate(data=purrr::map(elems,parts_and_seps)) %>%

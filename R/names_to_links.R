@@ -1,7 +1,7 @@
 # transforms name patterns into links for graph representation
 names_to_links=function(data){
   graphdata=NULL
-  for (i in 1:length(data$patterns)){
+  for (i in 1:length(data$seps)){
     graphdata=rbind(graphdata,
                     tibble::tibble(index_partial=i,
                                    from=data$parts[i],
