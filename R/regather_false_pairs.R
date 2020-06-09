@@ -1,6 +1,5 @@
 #' When one source node is linked only to one target node they are considered a false pair
 regather_false_pairs=function(tib){
-    tib=tib_elems_tmp[1:28,]
     tib=assess_pairs(tib)
     correct_these=which(tib$to_be_corrected)
     while(length(correct_these)>0){
