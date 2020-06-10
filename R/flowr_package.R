@@ -13,16 +13,18 @@
 #' flowr_package(packagename="tidygraph",
 #'               element="node_rank")
 flowr_package=function(packagename,
+                       layout="kk",
                        element=NA,
-                       layout="kk"){
+                       highlighted=NA,
+                       return_tibble=FALSE){
   tib_elems=tibble::tibble(
     pack_or_fun="package",
     root=packagename,
     elems=ls(paste0("package:",packagename)))
-  if(!is.na(element)){
-    tib_elems=tib_elems %>%
-      dplyr::filter(stringr::str_detect(elems,element))
-  }
-  flowr(tib_elems,element=element, layout=layout)
+  if(return_tibble){return(tib_elems)}
+  flowr(tib_elems,
+        layout=layout,
+        element=element,
+        highlighted=highlighted)
 }
 

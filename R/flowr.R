@@ -1,6 +1,7 @@
 #' Returns a graph
 #' @param tib_elems
 #' @param layout the type of layout: either "kk" (for a flower-like representation, the default) or "sugiyama" (for a tree-like representation)
+#' @param highlighted functions or arguments that are to be highlighted in the graph
 #' @return a graph
 #' @examples
 #' library(flowrpowr)
@@ -19,50 +20,43 @@
 
 flowr=function(tib_elems,
                element=NA,
-               layout="kk"){
-  tib_elems_tmp=tib_elems %>%
-    dplyr::mutate(index=1:dplyr::n()) %>%
-    dplyr::group_by(root,pack_or_fun,elems,index) %>%
-    tidyr::nest() %>%
-    dplyr::mutate(data=purrr::map(elems,parts_and_seps)) %>%
-    dplyr::mutate(data=purrr::map(data,names_to_links)) %>%
-    tidyr::unnest(cols=data) %>%
-    ungroup() %>%
-    regather_false_pairs()
-    if(!is.na(element)){
-      tib_elems_tmp=dplyr::bind_rows(tib_elems_tmp,
-                                     dplyr::filter(tib_elems_tmp,pair==element))
-    }
-  # add root
-  tib_firstpart=tib_elems_tmp %>%
-    dplyr::filter(index_partial==1) %>%
-    dplyr::mutate(to=from) %>%
-    dplyr::mutate(from=root) %>%
-    dplyr::mutate(index_partial=0) %>%
-    dplyr::mutate(sep=dplyr::case_when(pack_or_fun=="package"~"::",
-                                       pack_or_fun=="function"~"(...)"))
-  tib=dplyr::bind_rows(tib_elems_tmp,
-                       tib_firstpart) %>%
-    unique() %>%
-    filter(!is.na(to))
+               layout="kk",
+               highlighted=NA){
+  tib=build_edges_table(tib_elems=tib_elems,
+                        element=element,
+                        highlighted=highlighted)
+  tibn=tibble(name=unique(c(tib$from,tib$to))) %>%
+    dplyr::mutate(highlighted=TRUE)
+  if(!is.na(highlighted)){
+    tibn=tibn %>% select(-highlighted) %>%
+    left_join(tib %>% select(from,highlighted),by=c("name"="from")) %>%
+    left_join(tib %>% select(to,highlighted),by=c("name"="to")) %>%
+    mutate(highlighted=highlighted.x|highlighted.y) %>%
+    group_by(name) %>%
+    summarise(highlighted=as.logical(sum(highlighted,na.rm=TRUE))) %>%
+    dplyr::ungroup()
+  }
 
-  g=tidygraph::as_tbl_graph(tib) %>%
+  tibg=tbl_graph(nodes=tibn,edges=tib)
+  tibg=tibg%>%
     tidygraph::filter(!tidygraph::node_is_isolated()) %>%
     tidygraph::mutate(is_source=as.numeric(tidygraph::node_is_source())) %>%
     tidygraph::mutate(is_leaf=as.numeric(tidygraph::node_is_sink())) %>%
-    tidygraph::mutate(nodetype=as.factor(stringr::str_c(is_source,is_leaf))) %>%
+    tidygraph::mutate(nodetype=as.factor(stringr::str_c(is_source,is_leaf)))
+  g=tibg%>%
     ggraph::ggraph(layout=layout)+
     ggraph::geom_edge_link(aes(edge_colour=sep),
                    arrow=arrow(length=unit(3,"mm")),
                    edge_width=1,alpha=0.5)+
-    ggraph:: geom_node_label(aes(label=name,fill=nodetype),
+    ggraph:: geom_node_label(aes(label=name,fill=nodetype,colour=highlighted),
                     show.legend=FALSE,label.r=unit(0.5,"lines"),
                     alpha=0.3,
                     label.size=0)+
     ggraph::theme_graph()+
     ggraph::scale_edge_colour_manual(breaks=c("::",".","_","(...)"),
                              values=c("goldenrod","darkolivegreen4","darkolivegreen1","goldenrod2"))+
-    ggplot2::scale_fill_manual(values=c("mediumpurple2","indianred1","gold1"))
+    ggplot2::scale_fill_manual(values=c("mediumpurple2","indianred1","gold1"))+
+    ggplot2::scale_colour_manual(values=c("black","darkgrey"), breaks=c(TRUE,FALSE))
   if(layout=="sugiyama"){
     g=g +
       ggplot2::scale_y_reverse(expand=ggplot2::expand_scale(mult=0.1))+

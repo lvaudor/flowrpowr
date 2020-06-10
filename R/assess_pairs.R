@@ -5,9 +5,9 @@ assess_pairs=function(tib){
     dplyr::group_by(root,from)%>%
     dplyr::mutate(n=dplyr::n())%>%
     dplyr::ungroup() %>%
-    dplyr::mutate(to_be_corrected=case_when(n==1 &
-                                            !is.na(to) &
-                                            !from_is_function~TRUE,
-                                            TRUE~FALSE))
+    dplyr::mutate(to_be_corrected=dplyr::case_when(n==1 &
+                                                   !is.na(to) &
+                                                   !from_is_function~TRUE,
+                                                   TRUE~FALSE))
   return(tib)
 }

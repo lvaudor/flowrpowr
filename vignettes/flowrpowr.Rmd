@@ -44,11 +44,16 @@ Some packages gather many functions, which makes it preferable to display only s
 flowr_package("ggraph")
 ```
 
-So it might be useful to display **only part of the graph** making use of an **element of interest**. For instance, if I'm looking, specifically, for some function regarding the edges:
+So it might be useful to display **only part of the graph** making use of an **element of interest**. For instance, if I'm looking, specifically, for some function regarding the edges, I can either highlight the elements linked to node "edge" (and thus still display all other elements)
 
+```{r show_graph_highlighted, fig.width=8, fig.height=6}
+flowr_package("ggraph", highlighted="edge")
+```
+
+or just keep the elements in the graph:
 
 ```{r flowr_ggraph_edge,fig.width=8, fig.height=6}
-flowr_package("ggraph", "edge")
+flowr_package("ggraph", element="edge")
 ```
 
 
