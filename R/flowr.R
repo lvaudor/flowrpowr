@@ -40,7 +40,7 @@ flowr=function(tib_elems,
       dplyr::ungroup()
   }
 
-  tibg=tbl_graph(nodes=tibn,edges=tib)
+  tibg=tidygraph::tbl_graph(nodes=tibn,edges=tib)
   tibg=tibg%>%
     tidygraph::filter(!tidygraph::node_is_isolated()) %>%
     tidygraph::mutate(is_source=as.numeric(tidygraph::node_is_source())) %>%
