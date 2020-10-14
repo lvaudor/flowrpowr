@@ -49,10 +49,10 @@ flowr=function(tib_elems,
   g=tibg%>%
     ggraph::ggraph(layout=layout)+
     ggraph::geom_edge_link(ggplot2::aes(edge_colour=sep),
-                   arrow=ggplot2::arrow(length=unit(3,"mm")),
+                   arrow=ggplot2::arrow(length=ggplot2::unit(3,"mm")),
                    edge_width=1,alpha=0.5)+
     ggraph:: geom_node_label(ggplot2::aes(label=name,fill=nodetype,colour=highlighted),
-                    show.legend=FALSE,label.r=unit(0.5,"lines"),
+                    show.legend=FALSE,label.r=ggplot2::unit(0.5,"lines"),
                     alpha=0.3,
                     label.size=0)+
     ggraph::theme_graph()+
