@@ -26,7 +26,7 @@ regather_false_pairs=function(tib){
           if(length(indprev)>0){
               tib=tib%>%
                   dplyr::slice(-ind)
-          }else{tib[ind,]=mutate(tib[ind,],to=NA)}
+          }else{tib[ind,]=dplyr::mutate(tib[ind,],to=NA)}
           tib=assess_pairs(tib)
           correct_these=which(tib$to_be_corrected)
     }
