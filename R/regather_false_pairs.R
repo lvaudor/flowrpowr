@@ -14,7 +14,7 @@ regather_false_pairs=function(tib){
           if(length(indprev)>0){
             tib[indprev,]=tib[indprev,] %>%
               dplyr::mutate(to=tib[ind,]$from,
-                     pair=stringr::str_c(from,sep,to))
+                            pair=stringr::str_c(from,sep,to))
           }
           if(length(indnext)>0){
               tib[indnext,]=tib[indnext,] %>%

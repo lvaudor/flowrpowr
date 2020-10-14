@@ -24,8 +24,8 @@ build_edges_table=function(tib_elems, element=NA, highlighted=NA){
                          tib_firstpart) %>%
       unique() %>%
       dplyr::filter(!is.na(to))
-    if(length(highlighted)>1){highlighted=str_c(highlighted,collapse="|")}
-    if(length(element)>1){element=str_c(element,collapse="|")}
+    if(length(highlighted)>1){highlighted=stringr::str_c(highlighted,collapse="|")}
+    if(length(element)>1){element=stringr::str_c(element,collapse="|")}
     if(!is.na(highlighted)){
       tib=tib %>%
         dplyr::mutate(highlighted=stringr::str_detect(elems,highlighted))}

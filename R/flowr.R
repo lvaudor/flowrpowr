@@ -25,16 +25,19 @@ flowr=function(tib_elems,
   tib=build_edges_table(tib_elems=tib_elems,
                         element=element,
                         highlighted=highlighted)
-  tibn=tibble(name=unique(c(tib$from,tib$to))) %>%
+  tibn=tibble::tibble(name=unique(c(tib$from,tib$to))) %>%
     dplyr::mutate(highlighted=TRUE)
   if(!is.na(highlighted)){
-    tibn=tibn %>% select(-highlighted) %>%
-    left_join(tib %>% select(from,highlighted),by=c("name"="from")) %>%
-    left_join(tib %>% select(to,highlighted),by=c("name"="to")) %>%
-    mutate(highlighted=highlighted.x|highlighted.y) %>%
-    group_by(name) %>%
-    summarise(highlighted=as.logical(sum(highlighted,na.rm=TRUE))) %>%
-    dplyr::ungroup()
+    tibn=tibn %>%
+      dplyr::select(-highlighted) %>%
+      dplyr::left_join(tib %>%
+                         dplyr::select(from,highlighted),by=c("name"="from")) %>%
+      dplyr::left_join(tib %>%
+                         dplyr::select(to,highlighted),by=c("name"="to")) %>%
+      dplyr::mutate(highlighted=highlighted.x|highlighted.y) %>%
+      dplyr::group_by(name) %>%
+      dplyr::summarise(highlighted=as.logical(sum(highlighted,na.rm=TRUE))) %>%
+      dplyr::ungroup()
   }
 
   tibg=tbl_graph(nodes=tibn,edges=tib)
@@ -45,16 +48,16 @@ flowr=function(tib_elems,
     tidygraph::mutate(nodetype=as.factor(stringr::str_c(is_source,is_leaf)))
   g=tibg%>%
     ggraph::ggraph(layout=layout)+
-    ggraph::geom_edge_link(aes(edge_colour=sep),
-                   arrow=arrow(length=unit(3,"mm")),
+    ggraph::geom_edge_link(ggplot2::aes(edge_colour=sep),
+                   arrow=ggplot2::arrow(length=unit(3,"mm")),
                    edge_width=1,alpha=0.5)+
-    ggraph:: geom_node_label(aes(label=name,fill=nodetype,colour=highlighted),
+    ggraph:: geom_node_label(ggplot2::aes(label=name,fill=nodetype,colour=highlighted),
                     show.legend=FALSE,label.r=unit(0.5,"lines"),
                     alpha=0.3,
                     label.size=0)+
     ggraph::theme_graph()+
     ggraph::scale_edge_colour_manual(breaks=c("::",".","_","(...)"),
-                             values=c("goldenrod","darkolivegreen4","darkolivegreen1","goldenrod2"))+
+                                     values=c("goldenrod","darkolivegreen4","darkolivegreen1","goldenrod2"))+
     ggplot2::scale_fill_manual(values=c("mediumpurple2","indianred1","gold1"))+
     ggplot2::scale_colour_manual(values=c("black","darkgrey"), breaks=c(TRUE,FALSE))
   if(layout=="sugiyama"){
