@@ -4,10 +4,12 @@
 \alias{flowr}
 \title{Returns a graph}
 \usage{
-flowr(list_elems, layout = "kk")
+flowr(tib_elems, element = NA, layout = "kk", highlighted = NA)
 }
 \arguments{
 \item{layout}{the type of layout: either "kk" (for a flower-like representation, the default) or "sugiyama" (for a tree-like representation)}
+
+\item{highlighted}{functions or arguments that are to be highlighted in the graph}
 }
 \value{
 a graph
@@ -17,12 +19,15 @@ Returns a graph
 }
 \examples{
 library(flowrpowr)
-flowr(list_elems=tibble(
+tib_elems=tibble(
   root="gwek",
   pack_or_fun="package",
   elems=c("pouet_boum.bam",
           "pouet_hop_bam",
           "hop_boum.bam",
           "hop_boum_pouet_tac",
-          "hop_boum_pouet_toc")))
+          "hop_boum_pouet_tocBim",
+          "hop_boum_pouet_tocBimPaf",
+          "hop_boum_pouet_tocBoum"))
+ flowr(tib_elems)
 }

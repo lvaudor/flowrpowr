@@ -4,12 +4,18 @@
 \alias{flowr_package}
 \title{Returns a graph showing all the arguments of a function or the arguments of a function with a given element as part of their name}
 \usage{
-flowr_package(packagename, element = NA, layout = "kk")
+flowr_package(
+  packagename,
+  layout = "kk",
+  element = NA,
+  highlighted = NA,
+  return_tibble = FALSE
+)
 }
 \arguments{
-\item{element}{if provided, part of the name of the argument of interest}
-
 \item{layout}{the type of layout: either "kk" (for a flower-like representation, the default) or "sugiyama" (for a tree-like representation)}
+
+\item{element}{if provided, part of the name of the argument of interest}
 
 \item{functionname}{the name of an installed and loaded package}
 }
